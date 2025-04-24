@@ -7,31 +7,11 @@ class StudentDAO {
         this.connection = DBConnection.getConnection();
     }
 
-    public Student getStudent (String id) {
-        Student student = null;
+    // Get the Students with the given ID
+    public Student[] getStudentsByID (String id) {
         String roll_no = id.trim();
-        String query = "SELECT * FROM student_info WHERE roll_no = \"" + roll_no + "\"";
-
-        try (Statement stmt = this.connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
-            if (rs.next()) {
-                student = new Student(
-                    rs.getString("roll_no"),
-                    rs.getString("firstname"),
-                    rs.getString("fathername"),
-                    rs.getString("surname"),
-                    rs.getString("domicile"),
-                    rs.getString("email")
-                );
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return student;
-    }
-
-    public Student[] getAllStudents () {
-        Student[] students = new Student[this.getNumOfStudents()];
-        String query = "SELECT * FROM student_info";
+        Student[] students = new Student[this.getNumOfStudentsWith(roll_no)];
+        String query = "SELECT * FROM student_info WHERE roll_no LIKE \"%" + roll_no + "%\"";
         int studentIndex = 0;
 
         try (Statement stmt = this.connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
@@ -53,9 +33,10 @@ class StudentDAO {
         return students;
     }
 
-    public int getNumOfStudents () {
+    // Get Number of Students with the given ID
+    private int getNumOfStudentsWith (String id) {
         int num = 0;
-        String query = "SELECT COUNT(roll_no) FROM student_info";
+        String query = "SELECT COUNT(roll_no) FROM student_info WHERE roll_no LIKE \"%" + id + "%\"";
 
         try (Statement stmt = this.connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {

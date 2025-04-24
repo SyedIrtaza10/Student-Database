@@ -41,20 +41,10 @@ public class StudentTableView extends JFrame {
         button.setBounds(860, 20, 100, 25);
         mainPanel.add(button);
 
-        JButton hiddenButton = new JButton("Show All Students");
-        hiddenButton.setBounds(400, 350, 200, 25);
-        hiddenButton.setVisible(false);
-        mainPanel.add(hiddenButton);
-
         // Button action listener
         button.addActionListener(e -> {
             loadStudentByID(textField.getText());
             textField.setText("");
-            hiddenButton.setVisible(true);
-        });
-        hiddenButton.addActionListener(e -> {
-            loadStudentData();
-            hiddenButton.setVisible(false);
         });
 
         // Table setup
@@ -80,16 +70,23 @@ public class StudentTableView extends JFrame {
 
         // Set content pane
         setContentPane(mainPanel);
-
-        loadStudentData();
     }
 
-
-    private void loadStudentData () {
+    // Method to load student data by ID
+    private void loadStudentByID (String id) {
+        if (id.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a roll number");
+            return;
+        }
         StudentDAO studentDAO = new StudentDAO();
-        Student[] students = studentDAO.getAllStudents();
+        Student[] students = studentDAO.getStudentsByID(id);
 
         tableModel.setRowCount(0); // Clear previous data
+
+        if (students == null) {
+            JOptionPane.showMessageDialog(this, "Student not found");
+            return;
+        }
 
         for (Student student : students) {
             String[] row = {
@@ -102,32 +99,5 @@ public class StudentTableView extends JFrame {
             };
             this.tableModel.addRow(row);
         }
-    }
-
-    private void loadStudentByID (String id) {
-        if (id.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter a roll number");
-            return;
-        }
-        StudentDAO studentDAO = new StudentDAO();
-        Student student = studentDAO.getStudent(id);
-
-        tableModel.setRowCount(0); // Clear previous data
-
-        if (student == null) {
-            JOptionPane.showMessageDialog(this, "Student not found");
-            return;
-        }
-
-        String[] row = {
-            student.getRollNo(),
-            student.getFirstName(),
-            student.getFatherName(),
-            student.getLastName(),
-            student.getDomicile(),
-            student.getEmail()
-        };
-
-        this.tableModel.addRow(row);
     }
 }
